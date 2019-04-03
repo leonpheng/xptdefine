@@ -50,7 +50,7 @@ template <- function(){
   tmp <- tempfile(fileext = "style1.zip",tmpdir=wf)
   download(url, tmp)
   unzip(tmp,exdir=wf)
-  
+
   #download_repo("logo.style","leonpheng")
   zipF<-paste0(wf,"/logo.style-master/style1.zip")
   unzip(zipF,exdir=wf)
@@ -141,7 +141,7 @@ autoclass<-function(dat){
     {dat[,i]<-unlist(as.numeric(as.character(dat[,i])))
     }else{
       dat[,i]<-paste0("",unlist(dat[,i]))}
-    
+
   }
   dat
 }
@@ -176,7 +176,7 @@ importfiles<-function(...){
   setwd(working.folder)
   mainDir<-getwd()
   subDir<-c("input","output","Backup csv")
-  
+
   for(i in 1:length(subDir)){
     dir.create(file.path(mainDir, subDir[i]), showWarnings = FALSE)
   }
@@ -187,13 +187,13 @@ importfiles<-function(...){
   }
   dir()
   lst<- read.csv("list of files.csv")
-  lst<-lst[lst$xptconvert==1,]
+  #lst<-lst[lst$xptconvert==1,]
   for(i in 1:nrow(lst)){
     odir1<-paste0(getwd(),"/input/")
     odir2<-as.character(paste0(getwd(),"/output/programs/"))
     sour<-as.character(paste0(lst$sourcepath[i],"\\",lst$filename[i]))
     conv<-with(lst,paste0(rename[i],".",extension[i]))
-    
+
     if(lst$type[i]=="data"){
       dat <-read.csv(sour)
       write.csv(dat,paste0(odir1,conv),row.names=F)
@@ -240,36 +240,36 @@ definelist<-function(...){
     }
   row.names(lib)<-NULL
   lib$X<-NULL
-  
+
   keep<-names(lib)
   lib$tmp<-toupper(lib$Variable)
   lib$Variable<-NULL
   var$tmp<-toupper(var$orivar)
-  
+
   lib1<-join(var,lib)
-  
+
   lib1$Variable<-lib1$orivar
   lib1$tmp<-NULL
   lib1$"SAS.label"<-lib1$"Enter.label.here"
   lib1$"Max.40.char"<-nchar(as.character(lib1$"SAS.label"))
-  
+
   lib1$file<-lib1$file
   lib1$labelsize<-nchar(as.character(lib1$"Variable"))
-  
+
   if(is.null(lib1$"to.remove.type.1")){
     lib1$"to.remove.type.1"<-0
   }
   keep<-c("Variable","Unit","Detailed.description","Enter.label.here","Max.40.char","Numflg","file","to.remove.type.1")
-  
+
   lib1$Numflg<-1
   lib1$Variable<-toupper(lib1$Variable)
   lib1$orivar<-toupper(lib1$orivar)
   lib1<-nodup(lib1,names(lib1),"all")
   lib1[,setdiff(keep,names(lib1))]<-NA
   lib1<-lib1[,c(keep)]
-  
+
   lib2<-lib1[nchar(lib1$Variable)>8,]
-  lib3<- lib1[grepl(".", lib1$Variable, 
+  lib3<- lib1[grepl(".", lib1$Variable,
                     fixed = T),]
   if(nrow(lib2)>=1|nrow(lib3)>=1){
     lib2<-rbind(lib2,lib3)
@@ -355,7 +355,7 @@ generateXPT<-function(range.character=NULL){
   oriname<-unlist(paste0(csv$filename))
   description<-unlist(paste0(csv$description))
   key<-unlist(paste0(csv$keyvar))
-  
+
   ##PROGRAMS TABLE
   prog<-unlist(paste0(lst$renam[lst$type=="prog"],".txt"))
   progdes<-unlist(paste0(lst$renam[lst$description=="prog"]))
@@ -364,20 +364,20 @@ generateXPT<-function(range.character=NULL){
   ###############################
   labdir<-gsub(".csv","",dir)#
   outdir<-dir#
-  
+
   inp<-data.frame(
     input=dir,
     lab=labdir,#
     outp=sub(".csv","",outdir),
     prog="NA")#
-  
+
   inp1<-data.frame(
     Dataset=paste0(sub(".csv","",outdir),".xpt"),
     Orinalname=oriname,
     Description=description,#sub(".csv","",dir),  # Label for xpt output, may be required by FDA
     Keyvariables=key,
     Datasetfullname=dir)
-  
+
   ####### NOT TO BE EDITED ##################################
   #setwd(outputdir)#
   ######################################################################
@@ -395,7 +395,7 @@ generateXPT<-function(range.character=NULL){
     require(SASxport)
     numkeep<-detail$Variable[detail$Numflg==1]
     detail<- read.csv(paste(pathwork,definelib,sep="/"))
-    
+
     detail<-detail[detail$file==as.character(inp$input[j]),]
     detail$"Variable"<-as.character(detail$"Variable")
     detail$Enter.label.here<-capitalize(as.character(detail$Enter.label.here))
@@ -404,17 +404,17 @@ generateXPT<-function(range.character=NULL){
     pkdata<-chclass(pkdata,names(pkdata),"char")
     names(pkdata)<-toupper(names(pkdata))
     pkdata<-chclass(pkdata,names(pkdata),"char")
-    
+
     keepnum<-intersect(names(pkdata),numkeep)
     if(!is.null(checkclass)){
       pkdata<-autoclass(pkdata)
     }else{pkdata<-chclass(pkdata,keepnum,"num")}
-    
+
     for (h in 1:nrow(detail)){
       tryCatch(label(pkdata[,paste(detail$Variable[h])])<- paste(detail$SAS.label[h]),error=function(e) NULL )
     }
     label(pkdata)<-inp$lab[j]
-  
+
     rangepkdat <- vardefine(pkdata,maxlevel=10,labels=T,digits=6,vartype=T,exp.csv=T) # same as previous, to export to csv
     detail1<- detail #read.xls(paste(location,"/make defines library.xls",sep=""),sheet=1,method="tab")
     detail1<-detail1[!duplicated(detail1$Variable),]
@@ -427,7 +427,7 @@ generateXPT<-function(range.character=NULL){
     sav<-paste0("write.xport(",inp$outp[j],",file=file1,autogen.formats=FALSE)")
     setwd(outputdir)
     eval(parse(text=sav))
-    
+
     require(SASxport)   # to be able to read the xport files
     data<-read.xport(paste(outputdir,"/",inp$outp[j],".xpt",sep=""))
     definedataset <- data.frame(Variable=colnames(data))
@@ -440,7 +440,7 @@ generateXPT<-function(range.character=NULL){
     rangepkdat<-rangepkdat[,c("SAS Variable","SAS Label","Type","Code/Range","Unit","Detailed.description")]
     rangepkdat$"SAS Variable"<-gsub(rangepkdat$"SAS Variable",pattern="\\_",replacement="XXXX")
     detach("package:SASxport", unload = T)
-    
+
     ind<-as.numeric(row.names(rangepkdat[rangepkdat$"Code/Range"=="-",]))
     if(length(ind)>0){
       rgd<-rangepkdat
@@ -449,7 +449,7 @@ generateXPT<-function(range.character=NULL){
         rgd[ind[i],"Code/Range"]<-x}}else{rgd<-rangepkdat}
     if(range.character=="yes"){
       write.csv(rgd,paste(inp$outp[j],"define.csv",sep=""),row.names=F)}else{
-        write.csv(rangepkdat,paste(inp$outp[j],"define.csv",sep=""),row.names=F)  
+        write.csv(rangepkdat,paste(inp$outp[j],"define.csv",sep=""),row.names=F)
       }
     setwd("../../")
     getwd()
@@ -489,7 +489,7 @@ generateDEF1<-function(title="Add title here"){
   #lst<- read.xls(paste(pathwork,"list of files.xlsx",sep="/"), sheet = 1)
   lst<- read.csv(paste(pathwork,"list of files.csv",sep="/"))
   #lst<-lst[lst$xptconvert==1,]
-  
+
   csv<-lst[lst$extension=="csv",]
   dir<-unlist(paste0(csv$rename,".csv"))
   oriname<-unlist(paste0(csv$filename))
@@ -505,35 +505,34 @@ generateDEF1<-function(title="Add title here"){
   ###############################
   labdir<-gsub(".csv","",dir)#
   outdir<-dir#
-  
+
   inp<-data.frame(
     input=dir,
     lab=labdir,#
     outp=sub(".csv","",outdir),
     prog="NA")#
-  
+
   inp1<-data.frame(
     Dataset=paste0(sub(".csv","",outdir),".xpt"),
     "Original Name"=oriname,
     Description=description,#sub(".csv","",dir),  # Label for xpt output, may be required by FDA
     Keyvariables=key,
     Datasetfullname=paste0("#datasets#",paste0(sub(".csv","",outdir),".xpt")))
-  
+
   inp1$"Original.Name"<-gsub(inp1$"Original.Name",pattern="\\_",replacement="XXXX")
-  chclass<-function (data, var, class = "char") 
+  chclass<-function (data, var, class = "char")
   {
     for (i in var) {
       if (class == "num") {
         data[, i] <- as.numeric(as.character(data[, i]))
-      }
-      else {
+      }  else {
         data[, i] <- as.character(data[, i])
       }
     }
     data
   }
   inp1<-chclass(inp1,names(inp1),"char")
-  
+
   ##### SETTING for COLUMN HEADERS
   tbname<-"Define"
   ##SECTION TITLES
@@ -545,13 +544,13 @@ generateDEF1<-function(title="Add title here"){
   style1<-textProperties(color = "black", font.size =12,
                          font.weight = "bold", font.style = "normal", underlined = FALSE,
                          font.family = getOption("ReporteRs-default-font")
-                         
+
   )
   if("style.docx"%in%dir("c:/lhtemplate")){
     doc<-docx(template = "c:/lhtemplate/style.docx", empty_template = TRUE)
     doc = map_title(doc, stylenames = c("Heading1", "Heading2", "Heading3") )
   }else{doc<-docx()}
-  
+
   tabn<-c("Dataset", "Original Name",   "Description",     "Key Variables",    "Location")#as.character(names(inp1[1:nrow(inp1),]))
   #HYPERLINK1
   hyp0<-inp1[,"Datasetfullname"]
@@ -560,13 +559,13 @@ generateDEF1<-function(title="Add title here"){
   tab = addHeaderRow( tab, text.properties = textBold(),
                       value = tabn)
   #tab[,5] = textProperties(color = 'blue' )
-  
+
   hyp1<-paste0(sub(".csv","",outdir),".xpt")
   for(i in 1:length(hyp1)){
     hyp11<-paste0("./datasets/",hyp1[i])
     tab[i,5] = pot( hyp0[i], hyperlink = hyp11,
                     textBold( color = '#428BCA', underline = F ) ) }
-  
+
   if("logo.jpg"%in%dir("c:/lhtemplate")){
     doc<-doc%>%addImage("c:/lhtemplate/logo.jpg", par.properties = parProperties(text.align = "center"),width = 3.35, height = 1.6)
   }
@@ -579,24 +578,24 @@ generateDEF1<-function(title="Add title here"){
     addTitle("DATASETS TABLE OF CONTENTS",level=1)%>%
     addFlexTable(tab)%>%addPageBreak()%>%
     addTitle("VARIABLE DEFINITION TABLES",level=1)
-  
+
   tab1data<-inp
   for (j in 1:nrow(inp)){
     doc<-addTitle(doc, as.character(tab1data$outp[j]),level=2)
     data<-read.csv(file.path(outputdir,paste(inp$outp[j],"define.csv",sep="")))
     data$"SAS.Variable"<-toupper(data$"SAS.Variable")
     head(data)
-    
+
     #  txt2<-paste("Name of original version:",tab1data$input[j],"\nStructure:",struct[j],"\nDataset: ",inp1$Dataset[j],
     #           "\nProgram:",tab1data$prog[j])
-    
+
     tw1a<-as.data.frame(matrix(ncol=length(names(data)),nrow=5))
     tw1a[1:5,1]<-c(as.character(inp1$Description[j]),"Name of original version: ","Structure: ","Dataset: ","Program: ")
     tw1a[,3:6]<-""
     names(tw1a)<-names(data)
     tw1bn<-c("Variable","Label","Type", "Code Range", "Unit", "Detailed Description")#names(data)
     tw1b<-as.data.frame(matrix(ncol=length(names(data)),nrow=1,data=tw1bn))
-    
+
     names(tw1b)<-names(data)
     tw2<-rbind(tw1a,tw1b,data)
     tab = FlexTable( data = tw2, header.columns= FALSE)
@@ -606,7 +605,7 @@ generateDEF1<-function(title="Add title here"){
     tab=spanFlexTableColumns( tab, i = 1:5, from = 1, to = 6 )
     tab=spanFlexTableColumns( tab, i = 2, from = 1, to = 6 )
     tab=spanFlexTableColumns( tab, i = 3, from = 1, to = 6 )
-    tab[2,1, text.properties = textNormal(color = 'black')] =as.character(tab1data$input[j])
+    tab[2,1, text.properties = textNormal(color = 'black')] =as.character(inp1$Original.Name[j])
     tab[3,1, text.properties = textNormal(color = 'black')] =as.character(struct[j])
     hyp2<- as.character(inp1$Dataset[j])
     hyp11<-paste0("./datasets/",as.character(inp1$Dataset[j]))
@@ -624,7 +623,7 @@ generateDEF1<-function(title="Add title here"){
     doc <- addFlexTable(doc,tab)
     doc<-doc%>%addPageBreak()
   }
-  
+
   ##Tab 3
   doc<-addTitle(doc, "PROGRAMS TABLE OF CONTENTS",level=1)
   dir(progdir)
@@ -637,10 +636,10 @@ generateDEF1<-function(title="Add title here"){
                          Description="",
                          Location="")
   }
-  
-  
+
+
   #tab = FlexTable( data = tab3data, header.columns= FALSE)
-  
+
   hyp0<-tab3data[,"Program"]
   hyp1<-tab3data
   hyp2<-hyp1[,"Location"]
@@ -654,7 +653,7 @@ generateDEF1<-function(title="Add title here"){
     hyp11<-paste0("./programs/",hyp0[i])
     tab[i,3] = pot(hyp2[i], hyperlink = hyp11,
                    textBold( color = '#428BCA', underline = F ) ) }
-  
+
   #tab[,3] = textProperties( color = 'blue' )
   doc <- addFlexTable(doc,tab)
   writeDoc(doc, file = "./output/define.docx")
@@ -767,20 +766,16 @@ helps<-function(...){
 #' step1(working.folder)
 
 step1<-function(working.folder){
-  load.pack1()
   setwd(working.folder)
-  
-  
-  
   if(!"list of files.csv"%in%dir()){
     lf<-data.frame(
-      filename=c("data.csv","nonmem data","prog1"),
+      filename=c("data.csv","nonmem (PCSmisch package needed)","prog1"),
       type=c("data","nnm","prog"),
       extension=c("csv","","txt"),
       rename=c("pkdata","patab","phxsetting"),
       keyvar=c("USUBJID,TIME","ID,TIME",""),
       Structure=c("per subject per time point","per subject per time point",""),
-      xptconvert=c("1","1","1"),
+      #xptconvert=c("1","1","1"),
       Program=c("NA","phxsetting",""),
       description=c("PK dataset","Posthoc","Phoenix settings")	,
       sourcepath=c("copy/paste location"))
@@ -799,8 +794,8 @@ step1<-function(working.folder){
 #' step2()
 #'
 
-
 step2<-function(){
+  load.pack1()
   class="auto"
   importfiles()
   definelist()
@@ -824,18 +819,18 @@ step3<-function(){
   lib2<-read.csv("Var_name_GT8.csv")
   filename = paste("./Backup csv/Original Var_name_GT8-",format(Sys.time(), "%a-%b-%d-%H-%M-%S-%Y"),sep="")
   write.csv(lib2,paste0(filename,".csv"))
-  
+
   isnam<-unique(lib2$file)
-  
+
   rem<-lib[lib$to.remove.type.1==1&!is.na(lib$to.remove.type.1),c("Variable","file")]
   rem<-rbind(rem,lib2[lib2$to.remove.type.1==1&!is.na(lib2$to.remove.type.1),c("Variable","file")])
   rem1<-lib2[lib2$to.remove.type.1==0&!is.na(lib2$to.remove.type.1),c("Variable","file","change.name")]
-  
+
   lib<-chclass(lib,c("Variable","file"),"char")
-  
+
   rem<-chclass(rem,c("Variable","file"),"char")
   rem1<-chclass(rem1,c("Variable","file","change.name"),"char")
-  
+
   for(d in unique(c(rem$file,rem1$file))){
     dc<-read.csv(paste0("./input/",d))
     names(dc)<-toupper(names(dc))
@@ -849,7 +844,7 @@ step3<-function(){
       names(dc)[names(dc)==d2]<-as.character(var2$change.name[var2$Variable==d2])
       lib$Variable[lib$Variable==d2&lib$file==d]<-as.character(var2$change.name[var2$Variable==d2])
     }
-    
+
     write.csv(dc,paste0("./input/",d),row.names=F)
     write.csv(lib,"studydefinelist.csv",row.names=F)
   }}
@@ -907,14 +902,14 @@ vardefine <- function (data,maxlevel=7,vartype=T,labels=FALSE,digits = max(3, ge
                        exp.csv=FALSE) {
   definedataset <- data.frame(Variable=colnames(data))
   definedataset$Label <- ""
-  
+
   for (i in 1:length(names(data))) {
     definedataset$Type[i] =  class(data[,i])[2]
     definedataset$Type[i] <- ifelse(definedataset$Type[i]=="integer","Num",
                                     ifelse(definedataset$Type[i]=="numeric","Num",
                                            ifelse(definedataset$Type[i]=="factor","Char",
                                                   ifelse(definedataset$Type[i]=="character","Char","Char"))))
-    
+
     levels=ifelse(length(unique(data[,i]))>maxlevel,"",list(unique(as.character(data[,i]))))
     definedataset$code.range[i]  = ifelse(definedataset$Type[i]=="Num", paste(signif(min(data[,i],na.rm=T),digits=digits),
                                                                               signif(max(data[,i],na.rm=T),digits=digits),sep=" - "),
@@ -927,17 +922,17 @@ vardefine <- function (data,maxlevel=7,vartype=T,labels=FALSE,digits = max(3, ge
   }
   if(vartype==FALSE)
     definedataset$Type=NULL
-  
+
   definedataset$code.range <-gsub("NA,", "'.',", definedataset$code.range) # SASxport will convert the NA values into "."
   # the following 3 lines aim to remove the following characters:
   # '"', 'c(' and ')' at the beginning and at the end of the string, respectively
-  
+
   definedataset$code.range  <- gsub("c(", "", definedataset$code.range,fixed=T)
   definedataset$code.range  <- gsub("[\"]", "", definedataset$code.range)
   definedataset$code.range  <- gsub("[$)]", "", definedataset$code.range)
   if (exp.csv==TRUE)
     definedataset$code.range  <- definedataset$code.range #paste("zzz",definedataset$code.range,sep="")
   names(definedataset)      <- gsub("code.range", "Code/Range", names(definedataset))
-  
+
   return(definedataset)
 }
