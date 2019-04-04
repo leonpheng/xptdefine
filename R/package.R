@@ -274,6 +274,7 @@ definelist<-function(...){
   if(nrow(lib2)>=1|nrow(lib3)>=1){
     lib2<-rbind(lib2,lib3)
     lib2$change.name<-"Enter new name"
+    lib2<-nodup(lib2,names(lib2),"all")
     write.csv(lib2,paste(pathwork,"Var_name_GT8.csv",sep="/"),row.names=F)
     print("WRANING!!")
     print("!!Variable with name longer than 8 characters or containing dot (.) were found !!")
