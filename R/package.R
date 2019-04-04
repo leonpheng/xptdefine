@@ -171,7 +171,7 @@ mod<-function(filename,var){
 #' @export
 #' @examples
 #' importfiles()
-importfiles1<-function(...){
+importfiles<-function(...){
   #lst<- read.xls(paste(pathwork,"list of files.xlsx",sep="/"), sheet = 1)
   setwd(working.folder)
   mainDir<-getwd()
