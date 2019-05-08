@@ -349,7 +349,7 @@ generateXPT<-function(range.character=NULL){
   #setwd(input)
   #lst<- read.xls(paste(pathwork,"list of files.xlsx",sep="/"), sheet = 1)
   lst<- read.csv(paste(pathwork,"list of files.csv",sep="/"))
-  lst<-lst[lst$xptconvert==1,]
+  #lst<-lst[lst$xptconvert==1,]
   head(lst)
   csv<-lst[lst$extension=="csv",]
   dir<-unlist(paste0(csv$rename,".csv"))
@@ -387,14 +387,14 @@ generateXPT<-function(range.character=NULL){
   #detail<- read.xls(paste(sourcepath,definelib,sep="/"), sheet = 1)
   definelib<-"studydefinelist.csv"
   detail<- read.csv(paste(pathwork,definelib,sep="/"))
-  numkeep<-detail$Variable[detail$Numflg==1]
+  #numkeep<-detail$Variable[detail$Numflg==1]
   detail$"Variable"<-as.character(detail$"Variable")
   detail$Enter.label.here<-capitalize(as.character(detail$Enter.label.here))
   detail$SAS.label<-capitalize(as.character(detail$Enter.label.here))
   ################## START LOOP #################
   for (j in 1:nrow(inp)){
     require(SASxport)
-    numkeep<-detail$Variable[detail$Numflg==1]
+    #numkeep<-detail$Variable[detail$Numflg==1]
     detail<- read.csv(paste(pathwork,definelib,sep="/"))
 
     detail<-detail[detail$file==as.character(inp$input[j]),]
@@ -405,7 +405,6 @@ generateXPT<-function(range.character=NULL){
     pkdata<-chclass(pkdata,names(pkdata),"char")
     names(pkdata)<-toupper(names(pkdata))
     pkdata<-chclass(pkdata,names(pkdata),"char")
-
     keepnum<-intersect(names(pkdata),numkeep)
     if(!is.null(checkclass)){
       pkdata<-autoclass(pkdata)
@@ -448,7 +447,7 @@ generateXPT<-function(range.character=NULL){
       for(i in 1:length(ind)){
         x<-ifelse(length(unique(data[,ind[i]]))>5,paste(paste(as.character(unique(data[,ind[i]])[1:5]),collapse=", ",sep=""),",..."),paste(as.character(unique(data[,ind[i]])),collapse=", ",sep=""))
         rgd[ind[i],"Code/Range"]<-x}}else{rgd<-rangepkdat}
-    if(range.character=="yes"){
+    if(!is.null(range.character)){
       write.csv(rgd,paste(inp$outp[j],"define.csv",sep=""),row.names=F)}else{
         write.csv(rangepkdat,paste(inp$outp[j],"define.csv",sep=""),row.names=F)
       }
@@ -458,7 +457,6 @@ generateXPT<-function(range.character=NULL){
   #END LOOP #
 }
 #END of function
-
 
 ######################
 # OUTPUT DEFINE
