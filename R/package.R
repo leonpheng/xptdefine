@@ -405,10 +405,11 @@ generateXPT<-function(range.character=NULL){
     pkdata<-chclass(pkdata,names(pkdata),"char")
     names(pkdata)<-toupper(names(pkdata))
     pkdata<-chclass(pkdata,names(pkdata),"char")
-    keepnum<-intersect(names(pkdata),numkeep)
+    #keepnum<-intersect(names(pkdata),numkeep)
     if(!is.null(checkclass)){
       pkdata<-autoclass(pkdata)
-    }else{pkdata<-chclass(pkdata,keepnum,"num")}
+    }
+    #else{pkdata<-chclass(pkdata,keepnum,"num")}
 
     for (h in 1:nrow(detail)){
       tryCatch(label(pkdata[,paste(detail$Variable[h])])<- paste(detail$SAS.label[h]),error=function(e) NULL )
