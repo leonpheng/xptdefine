@@ -1,7 +1,7 @@
 Package: xptdefine
 Title: What the Package Does (one line, title case)
 Version: 0.0.0.9000
-Authors@R: person("Leon", "Pheng", email = "lhpheng@gmail.com", role = c("leon.pheng", "cre"))
+Authors@R: Leon Pheng <lhpheng@gmail.com>
 Description: What the package does (one paragraph).
 Depends: R (>= 3.0.0)
 License: What license is it under?
